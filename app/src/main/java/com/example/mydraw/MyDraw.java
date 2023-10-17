@@ -8,10 +8,17 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
 
-public class MyDraw extends View {
+import java.util.Random;
 
+public class MyDraw extends View {
+    boolean gameField[][];//массив с состоянием "лампочек"
+    int r = 80;
+    int ro = 50;
+    Paint paint;
+    boolean isGenerate = false;
     public MyDraw(Context context) {
         super(context);
+        paint = new Paint();
     }
 
     @Override
@@ -19,14 +26,35 @@ public class MyDraw extends View {
         super.onDraw(canvas);
         int w = canvas.getWidth();
         int h = canvas.getHeight();
-        Paint paint = new Paint();
-        paint.setColor(Color.BLUE);
-        paint.setStrokeWidth(5);
-        paint.setStyle(Paint.Style.STROKE);
-        canvas.drawLine(0,0, w, h, paint);
-        paint.setColor(Color.YELLOW);
-        canvas.drawCircle(w/2, h/2, 100, paint);
-        canvas.drawText(w + " ", 20,20,paint);
-        canvas.drawRect(10, 10, 300, 300, paint);
+        if (!isGenerate){
+            //генерация массива состояний "лампочек"
+            int n = h / (2 * r + ro); //количество строк
+            int m = w / (2 * r + ro); //количество столбцов
+            gameField = new boolean[n][m];
+            Random random = new Random();
+            for (int i = 0; i < gameField.length; i++) {
+                for (int j = 0; j < gameField[i].length; j++) {
+                    gameField[i][j] = random.nextBoolean();
+                }
+            }
+            isGenerate = !isGenerate;
+        }
+        //рисование игрового поля
+        paint.setColor(Color.rgb(128, 128, 0));
+        int cx = r + ro; //координаты центра окружностей-лампочек
+        int cy = r + ro;
+        for (int i = 0; i < gameField.length; i++) {
+            for (int j = 0; j < gameField[i].length; j++) {
+                if(gameField[i][j]){
+                    paint.setStyle(Paint.Style.FILL_AND_STROKE);
+                }else {
+                    paint.setStyle(Paint.Style.STROKE);
+                }
+                canvas.drawCircle(cx, cy, r, paint);
+                cx += 2 * r + ro;
+            }
+            cy += 2 * r + ro;
+            cx = r + ro;
+        }
     }
 }
